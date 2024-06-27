@@ -24,18 +24,25 @@ Before running the project, make sure you have the following installed:
 
 1. Clone the repository:
 
-   git clone https://github.com/SouravKrMishra/ecommerce-api.git
+   ```bash
+   git clone https://github.com/SouravKrMishra/ecommerce-api/tree/master
+   ```
 
 2. Navigate to the project directory:
 
+   ```bash
    cd ecommerce-backend
+   ```
 
 3. Install the dependencies:
 
+   ```bash
    npm install
+   ```
 
 4. Create a `.env` file in the root directory and provide the necessary environment variables:
 
+   ```plaintext
    PORT=3000
    MONGO_DB_ADDRESS=mongodb://localhost:27017/ecommerce
    JWT_SECRET=your-jwt-secret
@@ -45,12 +52,15 @@ Before running the project, make sure you have the following installed:
    SUPPORT_EMAIL=your-support-email
    TWILIO_ACCOUNT_SID=your-twilio-account-sid
    TWILIO_AUTH_TOKEN=your-twilio-auth-token
+   ```
 
    Replace the placeholders with your actual values.
 
 5. Start the server:
 
+   ```bash
    npm start
+   ```
 
    The server will start running at `http://localhost:3000`.
 
