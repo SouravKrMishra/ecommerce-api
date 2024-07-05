@@ -6,7 +6,33 @@ const verifyToken = require("../middlewares/verifyToken");
 const user = require("../controllers/user");
 
 router
+
   .post("/signup", validate(joiSchema.signUpSchema), user.signUp)
+
+  /**
+   * @swagger
+   * /user/login:
+   *   post:
+   *     summary: User login
+   *     requestBody:
+   *       required: true
+   *       content:
+   *         application/json:
+   *           schema:
+   *             type: object
+   *             properties:
+   *               email:
+   *                 type: string
+   *               password:
+   *                 type: string
+   *     responses:
+   *       200:
+   *         description: User logged in successfully
+   *       400:
+   *         description: Invalid credentials
+   *       500:
+   *         description: Internal server error
+   */
   .post("/login", validate(joiSchema.loginSchema), user.userLogin)
   .get("/getAllProduct", verifyToken, user.getAllProduct)
   .post(
