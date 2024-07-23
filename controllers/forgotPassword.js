@@ -12,8 +12,8 @@ const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
   auth: {
-    user: ETHEREAL_EMAIL,
-    pass: ETHEREAL_PASS,
+    user: process.env.ETHEREAL_EMAIL,
+    pass: process.env.ETHEREAL_PASS,
   },
 });
 
