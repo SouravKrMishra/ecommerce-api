@@ -12,10 +12,50 @@ const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
   port: process.env.EMAIL_PORT,
   auth: {
-    user: "jamie.botsford64@ethereal.email",
-    pass: "dEVUmZJt6zPjH5z7Hh",
+    user: ETHEREAL_EMAIL,
+    pass: ETHEREAL_PASS,
   },
 });
+
+// exports.forgotPassword = async (req, res) => {
+// //   try {
+// //     const { email } = req.body;
+
+// //     const user = await User.findOne({ email });
+// //     if (!user) {
+// //       return res.status(404).json({
+// //         statuscode: 404,
+// //         message: "User not found",
+// //       });
+// //     }
+
+// //     await OTP.deleteMany({ email });
+// //     const otp = Math.floor(100000 + Math.random() * 900000).toString();
+// //     const hashedOTP = await bcrypt.hash(otp, 10);
+
+// //     // await OTP.deleteOne({ email });
+// //     const otpExpiration = new Date(Date.now() + 1 * 60 * 1000);
+// //     await OTP.create({ email, otp: hashedOTP, expiration: otpExpiration });
+
+// //     await transporter.sendMail({
+// //       from: process.env.NOREPLY_EMAIL,
+// //       to: email,
+// //       subject: "Password Reset OTP",
+// //       text: `Your OTP for password reset is: ${otp}. It will expire in 5 minutes.`,
+// //     });
+
+// //     return res.status(200).json({
+// //       statuscode: 200,
+// //       message: "OTP sent successfully",
+// //     });
+// //   } catch (error) {
+// //     console.log(error);
+// //     return res.status(500).json({
+// //       statuscode: 500,
+// //       message: error.message,
+// //     });
+// //   }
+// // };
 
 exports.forgotPassword = async (req, res) => {
   try {
@@ -29,19 +69,17 @@ exports.forgotPassword = async (req, res) => {
       });
     }
 
-    await OTP.deleteMany({ email });
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
     const hashedOTP = await bcrypt.hash(otp, 10);
 
-    // await OTP.deleteOne({ email });
-    const otpExpiration = new Date(Date.now() + 1 * 60 * 1000);
+    await OTP.deleteOne({ email });
+    const otpExpiration = new Date(Date.now() + 5 * 60 * 1000);
     await OTP.create({ email, otp: hashedOTP, expiration: otpExpiration });
 
-    await transporter.sendMail({
-      from: process.env.NOREPLY_EMAIL,
-      to: email,
-      subject: "Password Reset OTP",
-      text: `Your OTP for password reset is: ${otp}. It will expire in 5 minutes.`,
+    await client.messages.create({
+      body: `Your OTP is ${otp}`,
+      from: process.env.TWILIO_NUMBER,
+      to: `+91` + `${user.phoneNumber}`,
     });
 
     return res.status(200).json({
@@ -56,44 +94,6 @@ exports.forgotPassword = async (req, res) => {
     });
   }
 };
-
-// exports.forgotPassword = async (req, res) => {
-//   try {
-//     const { email } = req.body;
-
-//     const user = await User.findOne({ email });
-//     if (!user) {
-//       return res.status(404).json({
-//         statuscode: 404,
-//         message: "User not found",
-//       });
-//     }
-
-//     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-//     const hashedOTP = await bcrypt.hash(otp, 10);
-
-//     // await OTP.deleteOne({ email });
-//     // const otpExpiration = new Date(Date.now() + 5 * 60 * 1000);
-//     await OTP.create({ email, otp: hashedOTP });
-
-//     await client.messages.create({
-//       body: `Your OTP is ${otp}`,
-//       from: `+18156058004`,
-//       to: `+91` + `${user.phoneNumber}`,
-//     });
-
-//     return res.status(200).json({
-//       statuscode: 200,
-//       message: "OTP sent successfully",
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     return res.status(500).json({
-//       statuscode: 500,
-//       message: error.message,
-//     });
-//   }
-// };
 
 exports.verifyotp = async (req, res) => {
   try {

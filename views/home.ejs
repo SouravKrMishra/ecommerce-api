@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>All Users</title>
+  </head>
+  <body>
+    <h1>All Users</h1>
+    <% if (users.length === 0) { %>
+    <p>No users found.</p>
+    <% } else { %>
+    <table>
+      <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Email Verified</th>
+        <th>Status</th>
+        <th>Action</th>
+        <th>Chat</th>
+      </tr>
+      <tbody>
+        <% users.forEach(function(user) { %>
+        <tr>
+          <td><%= user.name %></td>
+          <td><%= user.email %></td>
+          <td><%= user.isVerified %></td>
+          <td><%= user.status ? 'Unblocked' : 'Blocked' %></td>
+          <td>
+            <% if (user.status) { %>
+            <form method="POST" action="/user/block">
+              <input type="hidden" name="userId" value="<%= user._id %>" />
+              <button type="submit">Block</button>
+            </form>
+            <% } else { %>
+            <form method="POST" action="/user/unblock">
+              <input type="hidden" name="userId" value="<%= user._id %>" />
+              <button type="submit">Unblock</button>
+            </form>
+            <% } %>
+          </td>
+          <td>
+            <form method="post" action="/user/chat">
+              <input type="hidden" name="userId" value="<%= user._id %>" />
+              <button type="submit">Chat with <%= user.name %></button>
+            </form>
+          </td>
+        </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    <% } %> <% if (totalPages > 1) { %>
+    <div class="pagination">
+      <% if (currentPage > 1) { %>
+      <a href="/user/home?page=<%= currentPage - 1 %>">&laquo; Previous</a>
+      <% } %> <% for (let i = 1; i <= totalPages; i++) { %> <% if (i ===
+      currentPage) { %>
+      <span class="current-page"><%= i %></span>
+      <% } else { %>
+      <a href="/user/home?page=<%= i %>"><%= i %></a>
+      <% } %> <% } %> <% if (currentPage < totalPages) { %>
+      <a href="/user/home?page=<%= currentPage + 1 %>">Next &raquo;</a>
+      <% } %>
+    </div>
+    <% } %> <% if (typeof error !== 'undefined') { %>
+    <p><%= error %></p>
+    <% } %>
+  </body>
+</html>

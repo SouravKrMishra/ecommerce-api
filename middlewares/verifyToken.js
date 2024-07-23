@@ -3,16 +3,23 @@ const User = require("../models/user");
 
 async function verifyToken(req, res, next) {
   const token = req.header("x-authentication");
-  if (!token)
+  const cookieToken = req.cookies.token;
+  if (!token & !cookieToken)
     return res.status(401).json({
       statuscode: 401,
       message: "Access Denied",
     });
 
   try {
-    const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
-    // console.log(decodedPayload);
-    req.user = decodedPayload;
+    // const decodedPayload = jwt.verify(token, process.env.JWT_SECRET);
+    // // console.log(decodedPayload);
+    // req.user = decodedPayload;
+
+    const cookieDecodedPayload = jwt.verify(
+      cookieToken,
+      process.env.JWT_SECRET
+    );
+    req.user = cookieDecodedPayload;
 
     // console.log(req.user);
     const userExist = await User.findById(req.user.userId);

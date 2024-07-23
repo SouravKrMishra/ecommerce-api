@@ -32,21 +32,18 @@ const userSchema = new mongoose.Schema(
         ref: "PurchaseHistory",
       },
     ],
-
-    // cart: [
-    //   {
-    //     productId: {
-    //       type: mongoose.Types.ObjectId,
-    //       ref: "Product",
-    //       required: true,
-    //     },
-    //     quantity: {
-    //       type: Number,
-    //       required: true,
-    //       min: 1,
-    //     },
-    //   },
-    // ],
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    status: {
+      type: Boolean,
+      default: true,
+    },
+    verificationToken: String,
+    socketId: {
+      type: String,
+    },
   },
   {
     timestamps: true,

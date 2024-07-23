@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- font awesome icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css"
+      integrity="sha512-KfkfwYDsLkIlwQp6LFnl8zNdLGxu9YAA1QvwINks4PhcElQSvqcyVLLD9aMhXd13uQjoXtEKNosOWaZqXgel0g=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- css stylesheet -->
+    <link type="text/css" rel="stylesheet" href="/css/main.css" />
+
+    <!--js script-->
+    <script src="/script/script.js"></script>
+
+    <title>Register</title>
+  </head>
+  <body>
+    <div class="container" id="container">
+      <div class="form-container sign-up-container">
+        <form method="POST" action="/user/signup">
+          <h1>Create Account</h1>
+          <div class="social-container">
+            <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social"><i class="fab fa-google"></i></a>
+          </div>
+          <span>or use your email for registration</span>
+          <div class="infield">
+            <input type="text" placeholder="Name" name="name" required />
+            <label></label>
+          </div>
+          <div class="infield">
+            <input type="email" placeholder="Email" name="email" required />
+            <label></label>
+          </div>
+          <div class="infield">
+            <input
+              type="number"
+              placeholder="Phone Number"
+              name="phoneNumber"
+              required
+            />
+            <label></label>
+          </div>
+          <div class="infield">
+            <input
+              type="password"
+              placeholder="Password"
+              name="password"
+              required
+            />
+          </div>
+          <div class="infield">
+            <label for="role">Role:</label>
+            <select name="role" id="role">
+              <option value="customer">Customer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+          <button type="submit">Sign Up</button>
+          <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+          <ul>
+            <% errors.forEach(function(error) { %>
+            <li><%= error.msg %></li>
+            <% }); %>
+          </ul>
+          <% } %> <% if (typeof success !== 'undefined') { %>
+          <p style="color: green"><%= success %></p>
+          <% } %>
+        </form>
+      </div>
+      <div class="form-container sign-in-container">
+        <form method="POST" action="/user/login">
+          <h1>Sign in</h1>
+          <div class="social-container">
+            <a href="#" class="social"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social"><i class="fab fa-google"></i></a>
+          </div>
+          <span>or use your account</span>
+          <div class="infield">
+            <input
+              type="email"
+              placeholder="Enter your email"
+              id="email"
+              name="email"
+              required
+            />
+            <label></label>
+          </div>
+          <div class="infield">
+            <input
+              type="password"
+              placeholder="Password"
+              id="password"
+              name="password"
+              required
+            />
+            <label></label>
+          </div>
+          <a href="#" class="forgot">Forgot your password?</a>
+          <button type="submit">Sign In</button>
+          <% if (typeof error !== 'undefined') { %>
+          <p style="color: red; margin: 0; padding-top: 5px"><%= error %></p>
+          <% } %>
+        </form>
+      </div>
+      <div class="overlay-container" id="overlayCon">
+        <div class="overlay">
+          <div class="overlay-panel overlay-left">
+            <h1>Welcome Back!</h1>
+            <p>
+              To keep connected with us please login with your personal info
+            </p>
+            <button>Sign In</button>
+          </div>
+          <div class="overlay-panel overlay-right">
+            <h1>Hello, Friend!</h1>
+            <p>Enter your personal details and start journey with us</p>
+            <button>Sign Up</button>
+          </div>
+        </div>
+        <button id="overlayBtn"></button>
+      </div>
+    </div>
+    <!-- <h1>Register</h1>
+    <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+    <ul>
+      <% errors.forEach(function(error) { %>
+      <li><%= error.msg %></li>
+      <% }); %>
+    </ul>
+    <% } %> <% if (typeof success !== 'undefined') { %>
+    <p style="color: green"><%= success %></p>
+    <% } %>
+
+    <form action="/user/signup" method="POST">
+      <div>
+        <label for="name">Username:</label>
+        <input type="text" id="name" name="name" required />
+      </div>
+      <div>
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="number" id="phoneNumber" name="phoneNumber" required />
+      </div>
+      <div>
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required />
+      </div>
+      <div>
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required />
+      </div>
+      <div>
+        <label for="role">Role:</label>
+        <select name="role" id="role">
+          <option value="customer">Customer</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+      <button type="submit">Register</button>
+    </form>
+    <p>Already have an account? <a href="login">Login</a></p> -->
+  </body>
+</html>

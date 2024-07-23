@@ -3,60 +3,95 @@ const Product = require("../models/product");
 const Role = require("../models/role");
 const Cart = require("../models/cart");
 const PurchaseHistory = require("../models/purchaseHistory");
+// const Challenge = require("../models/challenge");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+// const { generateRegistrationOptions } = require("@simplewebauthn/server");
+
+const transporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  auth: {
+    user: ETHEREAL_EMAIL,
+    pass: ETHEREAL_PASS,
+  },
+});
 
 async function signUp(req, res) {
   try {
     const { name, email, password, phoneNumber, role } = req.body;
     // console.log(req.body);
-    try {
-      const hash = await bcrypt.hash(password, 10);
-      const roleDoc = await Role.findOne({ name: role });
-      if (!roleDoc) {
-        return res.status(400).json({
-          statuscode: 400,
-          message: "Invalid Role",
-        });
-      }
-      const user1 = {
-        name,
-        email,
-        password: hash,
-        phoneNumber,
-        role: roleDoc._id,
-      };
-      var user = await User.create(user1);
-      const token = jwt.sign(
-        {
-          userId: user.id,
-        },
-        process.env.JWT_SECRET,
-        {
-          expiresIn: "72h",
-        }
-      );
-      // console.log(token);
-      user1.token = token;
-      delete user1.password;
-      return res.status(201).json({
-        statuscode: 201,
-        message: "User created successfully",
-        data: user1,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.status(500).json({
-        statuscode: 500,
-        message: error.message,
-      });
+    const hash = await bcrypt.hash(password, 10);
+    const roleDoc = await Role.findOne({ name: role });
+    if (!roleDoc) {
+      // return res.status(400).json({
+      //   statuscode: 400,
+      //   message: "Invalid Role",
+      // });
+      return res.render("register", { error: "Invalid Role" });
     }
+    const user1 = {
+      name,
+      email,
+      password: hash,
+      phoneNumber,
+      role: roleDoc._id,
+      isVerified: false,
+      verificationToken: crypto.randomBytes(32).toString("hex"),
+    };
+    var user = await User.create(user1);
+    const verificationUrl = `${req.protocol}://${req.get(
+      "host"
+    )}/user/verify-email?token=${user.verificationToken}`;
+
+    await transporter.sendMail({
+      from: process.env.NOREPLY_EMAIL,
+      to: email,
+      subject: "Email Verification",
+      html: `Please verify your email by clicking the following link: <a href="${verificationUrl}">Verify Email</a>`,
+    });
+    const token = jwt.sign(
+      {
+        userId: user.id,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "72h",
+      }
+    );
+    // console.log(token);
+    user1.token = token;
+    delete user1.password;
+    // return res.status(201).json({
+    //   statuscode: 201,
+    //   message: "User created successfully",
+    //   data: user1,
+    // });
+    return res.render("register", {
+      success:
+        "User created successfully. Please check your email to verify your account.",
+    });
   } catch (error) {
     console.log(error);
-    return res.status(400).json({
-      statuscode: 400,
-      message: error.message,
-    });
+    return res.render("register", { error: error.message });
+    // return res.status(400).json({
+    //   statuscode: 400,
+    //   message: error.message,
+    // });
+  }
+}
+
+async function getSignUp(req, res) {
+  try {
+    return res.render("signup", { success: "" });
+  } catch {
+    return res.render("signup", { error: error.message });
+    // return res.status(500).json({
+    //   statuscode: 500,
+    //   message: "Server Error",
+    // });
   }
 }
 
@@ -65,18 +100,30 @@ async function userLogin(req, res) {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({
-        statuscode: 404,
-        message: "User Not Found",
+      // return res.status(404).json({
+      //   statuscode: 404,
+      //   message: "User Not Found",
+      // });
+      return res.render("register", { error: "User Not Found" });
+    }
+
+    if (!user.isVerified) {
+      return res.render("register", {
+        error: "Please verify your email first",
       });
+    }
+
+    if (!user.status) {
+      return res.render("register", { error: "Your account has been blocked" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({
-        statuscode: 400,
-        message: "Invalid Password",
-      });
+      // return res.status(400).json({
+      //   statuscode: 400,
+      //   message: "Invalid Password",
+      // });
+      return res.render("register", { error: "Invalid Password" });
     }
 
     const token = jwt.sign(
@@ -90,15 +137,34 @@ async function userLogin(req, res) {
       }
     );
 
-    return res.status(200).json({
-      userId: user._id,
-      token,
+    // return res.status(200).json({
+    //   userId: user._id,
+    //   token,
+    // });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
     });
+    return res.redirect("/user/home");
   } catch (error) {
     console.log(error);
-    return res.status(400).json({
-      statuscode: 400,
-      message: error.message,
+    return res.render("register", { error: error.message });
+    // return res.status(400).json({
+    //   statuscode: 400,
+    //   message: error.message,
+    // });
+  }
+}
+
+async function getUserLogin(req, res) {
+  try {
+    return res.render("register");
+  } catch (error) {
+    return res.status(500).json({
+      statuscode: 500,
+      message: "Server Error",
     });
   }
 }
@@ -501,6 +567,13 @@ async function getProductUnderCategory(req, res) {
     const page = Number(req.query.page) || 1;
     const limit = Number(req.query.limit) || 5;
     const skip = (page - 1) * limit;
+
+    if (page < 1) {
+      return res.status(400).json({
+        statuscode: 400,
+        message: "Invalid Page Number",
+      });
+    }
     const categories = await Product.distinct("category", {
       deleted: false,
     });
@@ -526,6 +599,132 @@ async function getProductUnderCategory(req, res) {
     });
   }
 }
+
+async function verifyEmail(req, res) {
+  try {
+    const { token } = req.query;
+    const user = await User.findOne({ verificationToken: token });
+
+    if (!user) {
+      return res.render("verifyEmail", {
+        error: "Invalid or expired token",
+      });
+    }
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    await user.save();
+
+    return res.render("verifyEmail", {
+      success: "Email verified successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.render("verifyEmail", {
+      error: "An error occurred while verifying your email",
+    });
+  }
+}
+
+async function getHomePage(req, res) {
+  try {
+    var page = parseInt(req.query.page) || 1;
+    var limit = parseInt(req.query.limit) || 10;
+
+    if (page < 1) page = 1;
+    if (limit < 1) limit = 10;
+
+    var skip = (page - 1) * limit;
+
+    const totalUsers = await User.countDocuments();
+    const totalPages = Math.ceil(totalUsers / limit);
+
+    const users = await User.find({}, "name email isVerified status")
+      .skip(skip)
+      .limit(limit);
+
+    return res.render("home", {
+      users,
+      currentPage: page,
+      totalPages,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.render("login", { error: error.message });
+  }
+}
+
+async function blockUser(req, res) {
+  try {
+    const { userId } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.render("/user/home", { error: "User does not exist" });
+    }
+    user.status = false;
+    await user.save();
+    return res.redirect("/user/home");
+  } catch (error) {
+    console.log(error);
+    return res.render("/user/home", { error: error.message });
+  }
+}
+
+async function unblockUser(req, res) {
+  try {
+    const { userId } = req.body;
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.render("/user/home", { error: "User does not exist" });
+    }
+    user.status = true;
+    await user.save();
+    return res.redirect("/user/home");
+  } catch (error) {
+    console.log(error);
+    return res.render("/user/home", { error: error.message });
+  }
+}
+
+async function startChat(req, res) {
+  try {
+    const recipientId = req.body.userId;
+    const senderId = req.user.userId;
+
+    if (!recipientId) {
+      return res
+        .status(400)
+        .render("home", { error: "Recipient ID is required" });
+    }
+
+    const recipient = await User.findById(recipientId);
+    if (!recipient) {
+      return res
+        .status(404)
+        .render("home", { error: "Recipient user does not exist" });
+    }
+
+    const sender = await User.findById(senderId);
+    if (!sender) {
+      return res
+        .status(404)
+        .render("home", { error: "Sender user does not exist" });
+    }
+
+    return res.render("chat", {
+      sender,
+      recipient,
+      recipientId,
+      senderId,
+    });
+  } catch (error) {
+    console.error("Error in startChat:", error);
+    return res
+      .status(500)
+      .render("home", { error: "An error occurred while starting the chat" });
+  }
+}
+
 module.exports = {
   signUp,
   userLogin,
@@ -538,4 +737,11 @@ module.exports = {
   userPurchaseHistory,
   getProductByCategory,
   getProductUnderCategory,
+  getSignUp,
+  getUserLogin,
+  verifyEmail,
+  getHomePage,
+  blockUser,
+  unblockUser,
+  startChat,
 };

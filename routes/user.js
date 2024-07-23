@@ -3,37 +3,14 @@ const router = express.Router();
 const validate = require("../middlewares/validationMiddleware");
 const joiSchema = require("../middlewares/joiSchema");
 const verifyToken = require("../middlewares/verifyToken");
+const { isAdmin } = require("../middlewares/isAdmin");
 const user = require("../controllers/user");
 
 router
-
   .post("/signup", validate(joiSchema.signUpSchema), user.signUp)
-
-  /**
-   * @swagger
-   * /user/login:
-   *   post:
-   *     summary: User login
-   *     requestBody:
-   *       required: true
-   *       content:
-   *         application/json:
-   *           schema:
-   *             type: object
-   *             properties:
-   *               email:
-   *                 type: string
-   *               password:
-   *                 type: string
-   *     responses:
-   *       200:
-   *         description: User logged in successfully
-   *       400:
-   *         description: Invalid credentials
-   *       500:
-   *         description: Internal server error
-   */
+  .get("/signup", user.getSignUp)
   .post("/login", validate(joiSchema.loginSchema), user.userLogin)
+  .get("/login", user.getUserLogin)
   .get("/getAllProduct", verifyToken, user.getAllProduct)
   .post(
     "/addToCart",
@@ -57,5 +34,11 @@ router
   .post("/buyProducts", verifyToken, user.buyProduct)
   .get("/userPurchaseHistory", verifyToken, user.userPurchaseHistory)
   .get("/getProductByCategory", verifyToken, user.getProductByCategory)
-  .get("/getProductUnderCategory", verifyToken, user.getProductUnderCategory);
+  .get("/getProductUnderCategory", verifyToken, user.getProductUnderCategory)
+  .get("/verify-email", user.verifyEmail)
+  .get("/home", user.getHomePage)
+  .post("/block", user.blockUser)
+  .post("/unblock", user.unblockUser)
+  .post("/chat", verifyToken, user.startChat)
+  .get("/register", user.getUserLogin);
 module.exports = router;

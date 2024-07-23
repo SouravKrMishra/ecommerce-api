@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Email Verification</title>
+  </head>
+  <body>
+    <h1>Email Verification</h1>
+    <% if (typeof error !== 'undefined') { %>
+    <p style="color: red"><%= error %></p>
+    <% } %> <% if (typeof success !== 'undefined') { %>
+    <p style="color: green"><%= success %></p>
+    <% } %>
+    <p><a href="/user/login">Go to Login</a></p>
+  </body>
+</html>
