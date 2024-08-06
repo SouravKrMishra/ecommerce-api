@@ -1,0 +1,289 @@
+/* General Reset */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+  background-color: #9a9494;
+  color: #333;
+  line-height: 1.6em;
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+
+/* Table Styles */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  background-color: #fff;
+}
+
+th {
+  background-color: #333;
+  color: #fff;
+}
+
+tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+/* Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.pagination a,
+.pagination span {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  color: #333;
+  background-color: #fff;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination a:hover,
+.pagination span:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.current-page {
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Action Buttons */
+button,
+.block,
+.unblock,
+.chat {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+button:hover,
+.block:hover,
+.unblock:hover,
+.chat:hover {
+  background-color: #0056b3;
+}
+
+/* Error and Success Messages */
+.error,
+.success {
+  padding: 10px;
+  margin-top: 20px;
+  border-radius: 5px;
+}
+
+.error {
+  background-color: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.success {
+  background-color: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+/* General Link Styles */
+a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #0056b3;
+}
+
+/* Form Styles */
+form {
+  display: inline-block;
+  margin: 5px;
+}
+
+/* Responsive Table */
+@media (max-width: 768px) {
+  table,
+  thead,
+  tbody,
+  th,
+  td,
+  tr {
+    display: block;
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  th,
+  td {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  th:first-child,
+  td:first-child {
+    flex-direction: column;
+  }
+}
+
+/* Professional Touches */
+h1 {
+  justify-content: center;
+  display: flex;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: auto;
+  overflow: hidden;
+  padding: 0 20px;
+}
+
+/* Card for Each User */
+.user-card {
+  background: #fff;
+  margin: 20px 0;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-card:hover {
+  transform: translateY(-5px);
+  transition: transform 0.3s ease;
+}
+
+/* Button Styles */
+button,
+.block,
+.unblock,
+.chat {
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 5px;
+  transition: transform 0.3s ease;
+}
+
+button:hover,
+.block:hover,
+.unblock:hover,
+.chat:hover {
+  transform: translateY(-2px);
+}
+
+/* Chat Button */
+.chat {
+  background-color: #28a745;
+}
+
+.chat:hover {
+  background-color: #1d8348;
+}
+
+/* Responsive Pagination */
+/* Enhanced Pagination Styles */
+.pagination {
+  display: flex;
+  justify-content: center;
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.pagination a,
+.pagination span {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  color: #333;
+  background-color: #fff;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+.pagination a:hover,
+.pagination span:hover {
+  background-color: #007bff;
+  color: #fff;
+}
+
+.pagination .current-page {
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Responsive Pagination */
+@media (max-width: 768px) {
+  .pagination {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .pagination a,
+  .pagination span {
+    flex: 1 0 auto; /* Allow items to grow and shrink as needed, but not exceed the container */
+    margin: 5px; /* Increased margin for better touch targets on mobile */
+    padding: 5px 8px; /* Slightly smaller padding for compactness */
+  }
+}
+
+/* Enhanced Active and Hover States */
+.pagination a:hover,
+.pagination span:hover,
+.pagination .current-page {
+  background-color: #0056b3; /* Darker shade for hover and active state */
+  color: #fff;
+}
+
+/* Accessibility Enhancements */
+.pagination a:focus,
+.pagination span:focus {
+  outline: 2px solid #007bff; /* Visible outline for keyboard navigation */
+  outline-offset: 2px; /* Space between element and outline */
+}
+
+.tableData {
+  background-color: #c2c1c1;
+}

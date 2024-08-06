@@ -8,6 +8,7 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const io = require("../index");
 // const { generateRegistrationOptions } = require("@simplewebauthn/server");
 
 const transporter = nodemailer.createTransport({
@@ -629,10 +630,10 @@ async function verifyEmail(req, res) {
 async function getHomePage(req, res) {
   try {
     var page = parseInt(req.query.page) || 1;
-    var limit = parseInt(req.query.limit) || 10;
+    var limit = parseInt(req.query.limit) || 7;
 
     if (page < 1) page = 1;
-    if (limit < 1) limit = 10;
+    if (limit < 1) limit = 7;
 
     var skip = (page - 1) * limit;
 

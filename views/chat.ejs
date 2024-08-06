@@ -3,97 +3,157 @@
 <html>
   <head>
     <title>Chat App</title>
-    <style>
-      body {
-        margin: 0;
-        padding-bottom: 3rem;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-          Helvetica, Arial, sans-serif;
-      }
-
-      #form {
-        background: rgba(0, 0, 0, 0.15);
-        padding: 0.25rem;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        display: flex;
-        height: 3rem;
-        box-sizing: border-box;
-        backdrop-filter: blur(10px);
-      }
-      #input {
-        border: none;
-        padding: 0 1rem;
-        flex-grow: 1;
-        border-radius: 2rem;
-        margin: 0.25rem;
-      }
-      #input:focus {
-        outline: none;
-      }
-      #form > button {
-        background: #333;
-        border: none;
-        padding: 0 1rem;
-        margin: 0.25rem;
-        border-radius: 3px;
-        outline: none;
-        color: #fff;
-      }
-
-      #messages {
-        list-style-type: none;
-        margin: 0;
-        padding: 0;
-      }
-      #messages > li {
-        padding: 0.5rem 1rem;
-      }
-      #messages > li:nth-child(odd) {
-        background: #efefef;
-      }
-    </style>
+    <link rel="stylesheet" href="/css/chat.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.css"
+      integrity="sha512-vEia6TQGr3FqC6h55/NdU3QSM5XR6HSl5fW71QTKrgeER98LIMGwymBVM867C1XHIkYD9nMTfWK2A0xcodKHNA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
-    <h1>You are <%= sender.email %></h1>
-    <h1>Chatting With <%= recipient.email %></h1>
-    <ul id="messages"></ul>
-    <div id="typing-indicator"></div>
-    <form id="form" action="">
-      <input id="input" autocomplete="off" placeholder="Message" required />
-      <button>Send</button>
-    </form>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/emojionearea/3.4.2/emojionearea.min.js"
+      integrity="sha512-hkvXFLlESjeYENO4CNi69z3A1puvONQV5Uh+G4TUDayZxSLyic5Kba9hhuiNLbHqdnKNMk2PxXKm0v7KDnWkYA=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <div class="container">
+      <h1>You are <%= sender.email %>, Chatting With <%= recipient.email %></h1>
+      <div class="chat-conatiner">
+        <ul id="messages" class="message-list"></ul>
+        <form id="form" action="" class="form-container">
+          <input
+            id="input"
+            autocomplete="off"
+            placeholder="Type a message..."
+          />
+          <script type="text/javascript">
+            $("#input").emojioneArea({
+              pickerPosition: "top",
+            });
+          </script>
+          <label for="imageUpload" class="file-input-label"></label>
+          <input
+            type="file"
+            accept="image/*"
+            id="imageUpload"
+            style="display: none"
+          />
+          <button>Send</button>
+        </form>
+      </div>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-      var socket = io();
-      const form = document.getElementById("form");
-      const input = document.getElementById("input");
-      const messages = document.getElementById("messages");
+      <script src="/socket.io/socket.io.js"></script>
+      <script>
+        var socket = io();
+        const form = document.getElementById("form");
+        const input = document.getElementById("input");
+        const messages = document.getElementById("messages");
 
-      // Use the correct event name
-      socket.emit("user connect", "<%= senderId %>");
+        socket.emit("user connect", "<%= senderId %>");
 
-      form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        if (input.value) {
-          socket.emit("private message", {
-            senderId: "<%= sender.email %>",
-            recipientId: "<%= recipientId %>",
-            message: input.value,
+        function uploadImageAndGetUrl(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
           });
-          input.value = "";
         }
-      });
 
-      socket.on("private message", (data) => {
-        const item = document.createElement("li");
-        item.textContent = `${data.senderId}: ${data.message}`;
-        messages.appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
-    </script>
+        document
+          .getElementById("form")
+          .addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const input = document.getElementById("input");
+            const fileInput = document.getElementById("imageUpload");
+            const file = fileInput.files[0];
+
+            if (file) {
+              // If there's a file, encode it to Base64 and send
+              const base64 = await uploadImageAndGetUrl(file);
+              const dataUrl = `data:image/${
+                file.type.split("/")[1].split(";")[0]
+              };base64,${base64.split(",")[1]}`;
+              socket.emit("private message", {
+                senderId: "<%= sender._id %>",
+                senderEmail: "<%= sender.email %>",
+                recipientId: "<%= recipientId %>",
+                message: dataUrl, // Base64 string as the message
+              });
+              fileInput.value = "";
+            } else if (input.value) {
+              // If there's no file but there's text, send the text message
+              socket.emit("private message", {
+                senderId: "<%= sender._id %>",
+                senderEmail: "<%= sender.email %>",
+                recipientId: "<%= recipientId %>",
+                message: input.value,
+              });
+              input.value = "";
+            }
+          });
+
+        socket.on("recipient message", (data) => {
+          if (data.deleted) return;
+          const item = document.createElement("li");
+          item.id = data.messageId;
+          // console.log("Item.id ", item.id);
+          if (data.senderEmail == "<%= sender.email %>") {
+            item.classList.add("sent");
+          } else {
+            item.classList.add("received");
+          }
+
+          const senderEmailSpan = document.createElement("span");
+          senderEmailSpan.style.fontWeight = "bold";
+          senderEmailSpan.textContent = `${data.senderEmail}: `;
+
+          const messageText = document.createTextNode(data.message);
+          item.appendChild(senderEmailSpan);
+          item.appendChild(messageText);
+
+          if (data.message.startsWith("data:image")) {
+            const img = document.createElement("img");
+            img.src = data.message;
+            img.style.maxWidth = "250px";
+            img.style.height = "auto";
+            item.appendChild(img);
+          } else {
+            item.appendChild(messageText);
+          }
+
+          if (data.senderEmail == "<%= sender.email %>") {
+            const deleteButton = document.createElement("button");
+            deleteButton.innerHTML = "🗑️";
+            deleteButton.classList.add("delete-button");
+            deleteButton.onclick = function () {
+              socket.emit("delete message", data.messageId);
+            };
+            item.appendChild(deleteButton);
+          }
+
+          messages.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+        });
+
+        socket.on("message deleted", (messageId) => {
+          const item = document.getElementById(messageId);
+          if (item) {
+            item.remove();
+          }
+        });
+
+        socket.on("deletion error", (errorMessage) => {
+          alert(errorMessage);
+        });
+      </script>
+    </div>
+    <% if (typeof error !== 'undefined') { %>
+    <p style="color: red; margin: 0; padding-top: 5px"><%= error %></p>
+    <% } %>
   </body>
 </html>

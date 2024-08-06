@@ -3,6 +3,7 @@
   <head>
     <title>All Users</title>
   </head>
+  <link rel="stylesheet" href="/css/home.css" />
   <body>
     <h1>All Users</h1>
     <% if (users.length === 0) { %>
@@ -20,11 +21,13 @@
       <tbody>
         <% users.forEach(function(user) { %>
         <tr>
-          <td><%= user.name %></td>
-          <td><%= user.email %></td>
-          <td><%= user.isVerified %></td>
-          <td><%= user.status ? 'Unblocked' : 'Blocked' %></td>
-          <td>
+          <td class="tableData"><%= user.name %></td>
+          <td class="tableData"><%= user.email %></td>
+          <td class="tableData"><%= user.isVerified %></td>
+          <td class="tableData">
+            <%= user.status ? 'Unblocked' : 'Blocked' %>
+          </td>
+          <td class="tableData">
             <% if (user.status) { %>
             <form method="POST" action="/user/block">
               <input type="hidden" name="userId" value="<%= user._id %>" />
@@ -37,7 +40,7 @@
             </form>
             <% } %>
           </td>
-          <td>
+          <td class="tableData">
             <form method="post" action="/user/chat">
               <input type="hidden" name="userId" value="<%= user._id %>" />
               <button type="submit">Chat with <%= user.name %></button>
